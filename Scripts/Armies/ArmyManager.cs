@@ -23,7 +23,6 @@ public class ArmyManager : MonoBehaviour
      private void Awake()
      {
           _units = GameObject.FindGameObjectsWithTag(_armyTag).ToList();
-          Debug.Log(_units);
           _units.ForEach(obj => obj.GetComponent<Unit>().manager = this);
           _managers.Add(_type, this);
      }

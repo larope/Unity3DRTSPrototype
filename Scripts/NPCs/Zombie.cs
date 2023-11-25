@@ -7,16 +7,6 @@ public class Zombie : Unit, IDamageable
     
     [HideInInspector] public float HP { get => _health; }
 
-    private void Update()
-    {
-        Debug.Log(manager.GetNearestEnemyUnit(transform.position));
-    }
-
-    private void Start()
-    {
-
-    }
-
     public void TakeDamage(float damage)
     {
         _health -= damage;
