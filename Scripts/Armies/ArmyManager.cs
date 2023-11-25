@@ -10,60 +10,49 @@ public class ArmyManager : MonoBehaviour
      public enum ArmyType
      {
           Player,
-          Zombie
+          Zombie,
      }
-     public static Dictionary<ArmyType, ArmyManager> managers = new Dictionary<ArmyType, ArmyManager>();
+     private static Dictionary<ArmyType, ArmyManager> _managers = new Dictionary<ArmyType, ArmyManager>();
 
      [SerializeField] private ArmyType _type;
      [SerializeField] private string _armyTag;
      [SerializeField] private List<ArmyType> _enemies = new List<ArmyType>();
      
-     private List<GameObject> _unitsGO;
-     private List<Unit> _units;
+     private List<GameObject> _units;
 
-     private void Start()
+     private void Awake()
      {
-          _unitsGO = GameObject.FindGameObjectsWithTag(_armyTag).ToList();
-          _units = _unitsGO
-               .Select(obj => obj.GetComponent<Unit>())
-               .ToList();
-          managers.Add(_type, this);
+          _units = GameObject.FindGameObjectsWithTag(_armyTag).ToList();
+          Debug.Log(_units);
+          _units.ForEach(obj => obj.GetComponent<Unit>().manager = this);
+          _managers.Add(_type, this);
      }
 
-     public List<GameObject> GetAllUnits() => _unitsGO;
-     public List<GameObject> GetAllEnemyUnits() => managers
+     public List<GameObject> GetAllUnits() => _units;
+     public List<GameObject> GetAllEnemyUnits() => _managers
           .Where(obj => _enemies.Contains(obj.Key))
           .Select(obj => obj.Value.GetAllUnits())
           .SelectMany(list => list)
           .ToList();
-     public GameObject GetNearestUnit(Vector3 position)
-     {
-          GameObject result = new GameObject();
-          float distance = float.MaxValue;
-          foreach(var unit in _unitsGO)
-          {
-               if (distance >= Vector3.Distance(unit.transform.position, position))
-               {
-                    distance=Vector3.Distance(unit.transform.position, position);
-                    result = unit;
-               }
-          }
 
-          return result;
-     }
-
-     public void RemoveUnit(Unit unit)
+     public GameObject GetNearestEnemyUnit(Vector3 position) => GetNearestUnitOfList(GetAllEnemyUnits(), position);
+     public GameObject GetNearestUnit(Vector3 position) => GetNearestUnitOfList(_units, position);
+     public void RemoveUnit(GameObject unit)
      {
           int index = _units.FindIndex(obj => obj == unit);
           _units.RemoveAt(index);
-          _unitsGO.RemoveAt(index);
-     }     
-     
-     public static GameObject GetNearestUnitOfType(Vector3 position, ArmyType type)
+     }
+
+     public static GameObject GetNearestUnitOfType(ArmyType type, Vector3 position) => _managers[type].GetNearestUnit(position);
+     public static List<GameObject> GetAllUnitsOfType(ArmyType type) => _managers[type].GetAllUnits();
+
+
+     private static GameObject GetNearestUnitOfList(List<GameObject> listOfUnits, Vector3 position)
      {
-          GameObject result = new GameObject();
+          GameObject result = null;
           float distance = float.MaxValue;
-          foreach(var unit in GetAllUnitsOfType(type))
+
+          foreach(var unit in listOfUnits)
           {
                if (distance >= Vector3.Distance(unit.transform.position, position))
                {
@@ -74,6 +63,4 @@ public class ArmyManager : MonoBehaviour
 
           return result;
      }
-     public static List<GameObject> GetAllUnitsOfType(ArmyType type) => managers[type].GetAllUnits();
-     
 }

@@ -1,20 +1,31 @@
+using System;
 using UnityEngine;
 
 public class Zombie : Unit, IDamageable
 {
     [SerializeField] private float _health;
     
-    public float HP { get => _health; }
+    [HideInInspector] public float HP { get => _health; }
+
+    private void Update()
+    {
+        Debug.Log(manager.GetNearestEnemyUnit(transform.position));
+    }
+
+    private void Start()
+    {
+
+    }
 
     public void TakeDamage(float damage)
     {
         _health -= damage;
         if (_health <= 0) Die();
     }
-
+    
     private void Die()
     {
-        manager.RemoveUnit(this);
+        manager.RemoveUnit(gameObject);
         DyingAnimation();
     }
 
