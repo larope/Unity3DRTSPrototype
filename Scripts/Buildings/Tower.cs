@@ -8,10 +8,19 @@ public class Tower : Building
         searchEnemy,
         attack
     }
+
+    [SerializeField] private GameObject _bullet;
+    [SerializeField] private Transform _shootingPoint;
+
     [SerializeField] private Transform _horizontalRotationObject;
     [SerializeField] private Transform _verticalRotationObject;
-
+    
     [SerializeField] private towerState _state;
+
+    private void Start()
+    {
+        StartCoroutine(SearchEnemyIE());
+    }
 
     IEnumerator SearchEnemyIE()
     {
@@ -19,7 +28,7 @@ public class Tower : Building
         while (enemy == null)
         {
             enemy = GetNearestEnemyUnit();
-            yield return new WaitForSeconds(300);
+            yield return new WaitForSeconds(0.3f);
         }
 
         target = enemy;
@@ -27,18 +36,18 @@ public class Tower : Building
     }
     IEnumerator AttackIE()
     {
-        IDamageable targetIDamageable = target.GetComponent<IDamageable>();
         while (target != null)
         {
-            Attack(targetIDamageable);
-            yield return new WaitForSeconds(attackRate);
+            Attack();
+            yield return new WaitForSeconds(1/attackRate);
         }
         ChangeState(towerState.attack);
     }
 
-    private void Attack(IDamageable targetIDamageable)
+    private void Attack()
     {
-        targetIDamageable.TakeDamage(damagePoints);
+        GameObject bullet = Instantiate(_bullet, _shootingPoint.position, Quaternion.identity);
+        bullet.GetComponent<HomingProjectile>().setTarget(target.transform);
     }
     private void ChangeState(towerState state)
     {
@@ -53,6 +62,16 @@ public class Tower : Building
                 StopAllCoroutines();
                 StartCoroutine(AttackIE());
                 break;
+        }
+    }
+
+    private void Update()
+    {
+        if (_state == towerState.attack)
+        {
+            _verticalRotationObject.LookAt(new Vector3(target.transform.position.x, _verticalRotationObject.position.y, target.transform.position.z));
+            _horizontalRotationObject.LookAt(new Vector3(target.transform.position.x, target.transform.position.y, target.transform.position.z));
+
         }
     }
 }

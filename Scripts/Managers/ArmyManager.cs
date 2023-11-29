@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using TMPro;
 using UnityEngine;
 
@@ -38,8 +39,7 @@ public class ArmyManager : MonoBehaviour
      public GameObject GetNearestUnit(Vector3 position) => GetNearestUnitOfList(_units, position);
      public void RemoveUnit(GameObject unit)
      {
-          int index = _units.FindIndex(obj => obj == unit);
-          _units.RemoveAt(index);
+          if (_units.FindIndex(obj => obj == unit) is int index && index != -1) _units.RemoveAt(index);
      }
 
      public static GameObject GetNearestUnitOfType(ArmyType type, Vector3 position) => _managers[type].GetNearestUnit(position);

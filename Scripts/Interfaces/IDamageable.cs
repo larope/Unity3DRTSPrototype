@@ -2,5 +2,5 @@ public interface IDamageable
 {
     public float HP { get; }
 
-    public void TakeDamage(float damage);
+    public void TakeDamage(float dmg);
 }
